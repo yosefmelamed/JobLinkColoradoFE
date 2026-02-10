@@ -9,6 +9,8 @@ export default function ProfilesPage() {
   const [me, setMe] = useState<Me | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [editing, setEditing] = useState(false)
+  const [form, setForm] = useState<any>(null)
 
   useEffect(() => {
     let mounted = true
@@ -18,6 +20,21 @@ export default function ProfilesPage() {
       .finally(() => { if (mounted) setLoading(false) })
     return () => { mounted = false }
   }, [])
+
+  useEffect(() => {
+    if (me) setForm({ email: me.email, employerProfileId: me.employerProfile?.id ?? '', employeeProfileId: me.employeeProfile?.id ?? '' })
+  }, [me])
+
+  async function saveProfile() {
+    try {
+      await api.put('/profiles/me', form)
+      const r = await api.get('/profiles/me')
+      setMe(r.data)
+      setEditing(false)
+    } catch (err: any) {
+      setError(err?.response?.data?.message || err.message)
+    }
+  }
 
   return (
     <Layout>
@@ -29,20 +46,43 @@ export default function ProfilesPage() {
         <div>
           <div className="mb-4">You are not signed in or have no profile.</div>
           <div className="space-x-2">
-            <Link href="/profiles/create-employer" className="px-3 py-1 bg-blue-600 text-white rounded">Create Employer Profile</Link>
-            <Link href="/profiles/create-employee" className="px-3 py-1 bg-blue-600 text-white rounded">Create Employee Profile</Link>
+            <Link href="/profiles/create-employer" className="btn btn-sm btn-primary">Create Employer Profile</Link>
+            <Link href="/profiles/create-employee" className="btn btn-sm btn-primary">Create Employee Profile</Link>
           </div>
         </div>
       )}
 
       {me && (
-        <div className="space-y-4">
-          <div>Email: {me.email}</div>
-          <div>
-            Employer profile: {me.employerProfile ? <span className="text-green-600">Created ({me.employerProfile.id})</span> : <Link href="/profiles/create-employer" className="text-blue-600">Create</Link>}
-          </div>
-          <div>
-            Employee profile: {me.employeeProfile ? <span className="text-green-600">Created ({me.employeeProfile.id})</span> : <Link href="/profiles/create-employee" className="text-blue-600">Create</Link>}
+        <div className="max-w-2xl">
+          <div className="bg-white border rounded p-4 shadow">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-medium">Account</h3>
+              {!editing ? (
+                <button className="btn" onClick={() => setEditing(true)}>Edit</button>
+              ) : (
+                <div className="flex gap-2">
+                  <button className="btn btn-primary" onClick={saveProfile}>Save</button>
+                  <button className="btn" onClick={() => { setEditing(false); setForm({ email: me.email, employerProfileId: me.employerProfile?.id ?? '', employeeProfileId: me.employeeProfile?.id ?? '' }) }}>Cancel</button>
+                </div>
+              )}
+            </div>
+
+            <div className="grid gap-3">
+              <div>
+                <label className="block text-sm font-medium">Email</label>
+                <input className="mt-1 block w-full border rounded p-2" value={form?.email ?? ''} onChange={e => setForm({...form, email: e.target.value})} disabled={!editing} />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium">Employer Profile ID</label>
+                <input className="mt-1 block w-full border rounded p-2 bg-gray-50" value={form?.employerProfileId ?? ''} onChange={e => setForm({...form, employerProfileId: e.target.value})} disabled={!editing} />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium">Employee Profile ID</label>
+                <input className="mt-1 block w-full border rounded p-2 bg-gray-50" value={form?.employeeProfileId ?? ''} onChange={e => setForm({...form, employeeProfileId: e.target.value})} disabled={!editing} />
+              </div>
+            </div>
           </div>
         </div>
       )}

@@ -71,7 +71,7 @@ export default function JobsPage() {
           <div className="font-medium">You need an employer profile before posting jobs.</div>
           <div className="mt-2 text-sm">Create an employer profile to manage companies and post jobs.</div>
           <div className="mt-4">
-            <Link href="/profiles/create-employer" className="inline-block px-4 py-2 bg-blue-600 text-white rounded">Create employer profile</Link>
+            <Link href="/profiles/create-employer" className="btn btn-primary">Create employer profile</Link>
           </div>
         </div>
       )}
@@ -82,7 +82,7 @@ export default function JobsPage() {
           <div className="font-medium">You don't have a company yet.</div>
           <div className="mt-2">Create a company to start posting jobs.</div>
           <div className="mt-4">
-            <Link href="/companies/create" className="inline-block px-4 py-2 bg-blue-600 text-white rounded">Create your company</Link>
+            <Link href="/companies/create" className="btn btn-primary">Create your company</Link>
           </div>
         </div>
       )}
@@ -93,48 +93,60 @@ export default function JobsPage() {
           <div className="font-medium">No jobs posted yet.</div>
           <div className="mt-2">Create your first job posting.</div>
           <div className="mt-4">
-            <button onClick={()=>setModalOpen(true)} className="inline-block px-4 py-2 bg-blue-600 text-white rounded">Create your first job</button>
+            <button onClick={()=>setModalOpen(true)} className="btn btn-primary">Create your first job</button>
           </div>
         </div>
       )}
 
-      <div className="space-y-4">
+      <div className="job_container">
         {/* Show user's company jobs first */}
         {myJobs.length > 0 && myJobs.map(job => (
-          <div key={job.id} className="p-4 border rounded bg-white">
-            <h3 className="text-lg font-medium">{job.title} <span className="text-sm text-gray-500">(Your company)</span></h3>
-            <div className="text-sm text-gray-600">{job.company?.name}</div>
-            {job.location && <div className="text-sm text-gray-600">Location: {job.location}</div>}
-            <div className="mt-2 text-sm">{job.description ? job.description.substring(0, 400) : 'No description'}</div>
-            <div className="mt-2 text-sm text-gray-700">
-              {job.employmentType && <span className="mr-3">Type: {job.employmentType}</span>}
-              {job.remoteType && <span className="mr-3">Work: {job.remoteType}</span>}
-              {(job.salaryMin || job.salaryMax) && (
-                <span className="mr-3">Salary: {job.salaryCurrency ?? ''} {job.salaryMin ?? ''}{job.salaryMin && job.salaryMax ? ' - ' + job.salaryMax : ''}</span>
+          <div key={job.id} className="job_item">
+            <div>
+              <h3 className="text-lg font-medium">{job.title} <span className="text-sm text-gray-500">(Your company)</span></h3>
+              <div className="text-sm text-gray-600">{job.company?.name}</div>
+              {job.location && <div className="text-sm text-gray-600">Location: {job.location}</div>}
+              <div className="mt-2 text-sm">{job.description ? job.description.substring(0, 400) : 'No description'}</div>
+              <div className="mt-2 text-sm text-gray-700">
+                {job.employmentType && <span className="mr-3">Type: {job.employmentType}</span>}
+                {job.remoteType && <span className="mr-3">Work: {job.remoteType}</span>}
+                {(job.salaryMin || job.salaryMax) && (
+                  <span className="mr-3">Salary: {job.salaryCurrency ?? ''} {job.salaryMin ?? ''}{job.salaryMin && job.salaryMax ? ' - ' + job.salaryMax : ''}</span>
+                )}
+              </div>
+              {job.responsibilities && <div className="mt-2"><strong>Responsibilities:</strong> <div className="text-sm">{job.responsibilities}</div></div>}
+              {job.requirements && <div className="mt-2"><strong>Requirements:</strong> <div className="text-sm">{job.requirements}</div></div>}
+              {job.benefits && <div className="mt-2"><strong>Benefits:</strong> <div className="text-sm">{job.benefits}</div></div>}
+              {job.applicationUrl && (
+                <div className="mt-2"><a href={job.applicationUrl} className="text-blue-600">Apply: {job.applicationUrl}</a></div>
               )}
+              {job.closingDate && (
+                <div className="mt-2 text-sm text-gray-600">Closes: {new Date(job.closingDate).toLocaleDateString()}</div>
+              )}
+
+              <div className="job_item-cta mt-4">
+                <Link href={`/jobs/${job.id}?edit=true`} className="btn">Edit</Link>
+                <Link href={`/jobs/${job.id}`} className="btn">View</Link>
+                {job.applicationUrl ? (
+                  <a href={job.applicationUrl} className="btn btn-primary">Apply</a>
+                ) : (
+                  <button onClick={() => setModalOpen(true)} className="btn btn-primary">Create / Apply</button>
+                )}
+              </div>
             </div>
-            {job.responsibilities && <div className="mt-2"><strong>Responsibilities:</strong> <div className="text-sm">{job.responsibilities}</div></div>}
-            {job.requirements && <div className="mt-2"><strong>Requirements:</strong> <div className="text-sm">{job.requirements}</div></div>}
-            {job.benefits && <div className="mt-2"><strong>Benefits:</strong> <div className="text-sm">{job.benefits}</div></div>}
-            {job.applicationUrl && (
-              <div className="mt-2"><a href={job.applicationUrl} className="text-blue-600">Apply: {job.applicationUrl}</a></div>
-            )}
-            {job.closingDate && (
-              <div className="mt-2 text-sm text-gray-600">Closes: {new Date(job.closingDate).toLocaleDateString()}</div>
-            )}
           </div>
         ))}
         {/* Show user's company jobs first */}
         {myJobs.length > 0 &&  (
           <div className="mt-4">
-             <button onClick={()=>setModalOpen(true)} className="inline-block px-4 py-2 bg-blue-600 text-white rounded">Create another job</button>
+             <button onClick={()=>setModalOpen(true)} className="btn btn-primary">Create another job</button>
              </div>
         )}
 
 
         {/* Other jobs */}
         {jobs.filter(j => !(myCompany && j.company?.id === myCompany.id)).map(job => (
-          <div key={job.id} className="p-4 border rounded">
+          <div key={job.id} className="job_item">
             <h3 className="text-lg font-medium">{job.title}</h3>
             <div className="text-sm text-gray-600">{job.company?.name}</div>
             {job.location && <div className="text-sm text-gray-600">Location: {job.location}</div>}
@@ -155,6 +167,13 @@ export default function JobsPage() {
             {job.closingDate && (
               <div className="mt-2 text-sm text-gray-600">Closes: {new Date(job.closingDate).toLocaleDateString()}</div>
             )}
+
+            <div className="job_item-cta mt-4">
+              <Link href={`/jobs/${job.id}`} className="btn">View</Link>
+              {job.applicationUrl && (
+                <a href={job.applicationUrl} className="btn btn-primary">Apply</a>
+              )}
+            </div>
           </div>
         ))}
 

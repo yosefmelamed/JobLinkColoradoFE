@@ -61,7 +61,7 @@ export default function JobModal({ isOpen, onClose, companies, onCreated }: Prop
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black opacity-40" onClick={onClose} />
-      <div className="relative bg-white rounded max-w-2xl w-full p-6 shadow-lg mx-4 overflow-auto max-h-[90vh]">
+      <div className="relative modal-content rounded max-w-2xl w-full p-6 shadow-lg mx-4 overflow-auto max-h-[90vh]">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-medium">Create Job Posting</h3>
           <button onClick={onClose} className="text-gray-600">Close</button>
@@ -151,8 +151,8 @@ export default function JobModal({ isOpen, onClose, companies, onCreated }: Prop
           </div>
 
           <div className="flex items-center justify-end gap-3">
-            <button type="button" onClick={onClose} className="px-3 py-2 border rounded">Cancel</button>
-            <button disabled={loading} className="px-4 py-2 bg-blue-600 text-white rounded">{loading ? 'Creating...' : 'Create Job'}</button>
+            <button type="button" onClick={onClose} className="btn">Cancel</button>
+            <button disabled={loading} className="btn btn-primary">{loading ? 'Creating...' : 'Create Job'}</button>
           </div>
           {error && <div className="text-red-600">{error}</div>}
         </form>

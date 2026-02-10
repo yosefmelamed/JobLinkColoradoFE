@@ -52,7 +52,7 @@ export default function ChatPage() {
           <label className="block text-sm font-medium">Employee profile id</label>
           <input className="mt-1 block w-full border rounded p-2" value={employeeId} onChange={e=>setEmployeeId(e.target.value)} />
           <div>
-            <button className="px-3 py-1 bg-blue-600 text-white rounded">Start conversation</button>
+            <button className="btn btn-sm btn-primary">Start conversation</button>
           </div>
         </form>
 
@@ -60,7 +60,7 @@ export default function ChatPage() {
           <label className="block text-sm font-medium">Conversation id</label>
           <input className="mt-1 block w-full border rounded p-2" value={conversationId} onChange={e=>setConversationId(e.target.value)} />
           <div className="mt-2">
-            <button onClick={loadMessages} className="px-3 py-1 bg-gray-200 rounded">Load messages</button>
+            <button onClick={loadMessages} className="btn btn-sm">Load messages</button>
           </div>
         </div>
 
@@ -75,7 +75,7 @@ export default function ChatPage() {
 
         <form onSubmit={sendMessage} className="flex gap-2">
           <input className="flex-1 border rounded p-2" value={text} onChange={e=>setText(e.target.value)} />
-          <button className="px-3 py-1 bg-blue-600 text-white rounded">Send</button>
+          <button className="btn btn-sm btn-primary">Send</button>
         </form>
 
         {error && <div className="text-red-600">{error}</div>}

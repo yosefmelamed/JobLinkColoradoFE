@@ -78,7 +78,7 @@ export default function CreateJob() {
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold mb-4">Create Job</h2>
         {!initializing && me && me.employerProfile && companies.length > 0 && (
-          <button onClick={()=>setModalOpen(true)} className="px-3 py-2 bg-green-600 text-white rounded">Create Job</button>
+          <button onClick={()=>setModalOpen(true)} className="btn btn-primary">Create Job</button>
         )}
       </div>
 
@@ -89,7 +89,7 @@ export default function CreateJob() {
           <div className="font-medium">You need an employer profile before posting jobs.</div>
           <div className="mt-2 text-sm">Create an employer profile to manage your company and post jobs.</div>
           <div className="mt-4">
-            <Link href="/profiles/create-employer" className="inline-block px-4 py-2 bg-blue-600 text-white rounded">Create employer profile</Link>
+            <Link href="/profiles/create-employer" className="btn btn-primary">Create employer profile</Link>
           </div>
         </div>
       ) : companies.length === 0 ? (
@@ -97,7 +97,7 @@ export default function CreateJob() {
           <div className="font-medium">You don't have any companies yet.</div>
           <div className="mt-2 text-sm">Create a company first so you can post jobs for it.</div>
           <div className="mt-4">
-            <Link href="/companies/create" className="inline-block px-4 py-2 bg-blue-600 text-white rounded">Create your company</Link>
+            <Link href="/companies/create" className="btn btn-primary">Create your company</Link>
           </div>
         </div>
       ) : (
@@ -109,7 +109,7 @@ export default function CreateJob() {
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black opacity-40" onClick={()=>setModalOpen(false)} />
-          <div className="relative bg-white rounded max-w-2xl w-full p-6 shadow-lg mx-4 overflow-auto max-h-[90vh]">
+            <div className="relative modal-content rounded max-w-2xl w-full p-6 shadow-lg mx-4 overflow-auto max-h-[90vh]">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-medium">Create Job Posting</h3>
               <button onClick={()=>setModalOpen(false)} className="text-gray-600">Close</button>
@@ -199,8 +199,8 @@ export default function CreateJob() {
               </div>
 
               <div className="flex items-center justify-end gap-3">
-                <button type="button" onClick={()=>setModalOpen(false)} className="px-3 py-2 border rounded">Cancel</button>
-                <button disabled={loading} className="px-4 py-2 bg-blue-600 text-white rounded">{loading ? 'Creating...' : 'Create Job'}</button>
+                <button type="button" onClick={()=>setModalOpen(false)} className="btn">Cancel</button>
+                <button disabled={loading} className="btn btn-primary">{loading ? 'Creating...' : 'Create Job'}</button>
               </div>
               {error && <div className="text-red-600">{error}</div>}
             </form>

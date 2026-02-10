@@ -43,7 +43,7 @@ export default function Signup() {
           </select>
         </div>
         <div>
-          <button disabled={loading} className="px-4 py-2 bg-blue-600 text-white rounded">{loading ? 'Signing...' : 'Sign up'}</button>
+          <button disabled={loading} className="btn btn-primary">{loading ? 'Signing...' : 'Sign up'}</button>
         </div>
         {message && <div className="text-sm text-red-600">{message}</div>}
       </form>
