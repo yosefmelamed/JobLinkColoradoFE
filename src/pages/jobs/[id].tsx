@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import Layout from '../../components/Layout'
 import { api } from '../../utils/api'
+import { title } from 'node:process'
 
 export default function JobDetail() {
   const router = useRouter()
@@ -73,7 +74,7 @@ export default function JobDetail() {
       {error && <div className="text-red-600">{error}</div>}
       {job && (
         <div>
-          {editing ? (
+          {editing ? ( 
             <div>
               <h3 className="text-lg font-medium">Edit Job</h3>
               <div className="grid gap-3 mt-3">
@@ -144,17 +145,86 @@ export default function JobDetail() {
 
                 <div className="flex gap-2 mt-2">
                   <button className="btn btn-primary" onClick={saveUpdate}>Save</button>
-                  <button className="btn" onClick={()=>{ setEditing(false); setEditForm(null); }}>Cancel</button>
+                  <button className="btn" onClick={()=>{ setEditing(false); setEditForm(null); router.push('/jobs'); }}>Cancel</button>
                 </div>
               </div>
             </div>
           ) : (
             <div>
-              <h2 className="text-2xl font-semibold">{job.title}</h2>
-              <div className="text-sm text-gray-600">Company: {job.company?.name}</div>
-              <p className="mt-4">{job.description}</p>
+              <div>
+              <h3 className="text-lg font-medium">View Job</h3>
+              <div className="grid gap-3 mt-3">
+                <div>
+                  <label className="block text-sm font-medium">Title</label>
+                  <input className="mt-1 block w-full border rounded p-2" value={job.title ?? ''} readOnly />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium">Description</label>
+                  <textarea className="mt-1 block w-full border rounded p-2" rows={4} value={job.description ?? ''} readOnly />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium">Location</label>
+                  <input className="mt-1 block w-full border rounded p-2" value={job.location ?? ''} readOnly />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium">Employment Type</label>
+                  <input className="mt-1 block w-full border rounded p-2" value={job.employmentType ?? ''} readOnly />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium">Remote Type</label>
+                  <input className="mt-1 block w-full border rounded p-2" value={job.remoteType ?? ''} readOnly />
+                </div>
+
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium">Salary Min</label>
+                    <input type="number" className="mt-1 block w-full border rounded p-2" value={job.salaryMin ?? ''} readOnly />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium">Salary Max</label>
+                    <input type="number" className="mt-1 block w-full border rounded p-2" value={job.salaryMax ?? ''} readOnly />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium">Currency</label>
+                    <input className="mt-1 block w-full border rounded p-2" value={job.salaryCurrency ?? ''} readOnly />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium">Responsibilities</label>
+                  <textarea className="mt-1 block w-full border rounded p-2" rows={3} value={job.responsibilities ?? ''} readOnly />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium">Requirements</label>
+                  <textarea className="mt-1 block w-full border rounded p-2" rows={3} value={job.requirements ?? ''} readOnly />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium">Benefits</label>
+                  <textarea className="mt-1 block w-full border rounded p-2" rows={3} value={job.benefits ?? ''} readOnly />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium">Application URL</label>
+                  <input className="mt-1 block w-full border rounded p-2" value={job.applicationUrl ?? ''} readOnly />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium">Closing Date</label>
+                  <input type="date" className="mt-1 block w-full border rounded p-2" value={job.closingDate ?? ''} readOnly />
+                </div>
+
+                
+              </div>
+            </div>
               <div className="mt-4 flex items-center gap-3">
-                <button onClick={handleDelete} className="btn btn-sm btn-danger">Delete</button>
+                                 <button className="btn" onClick={() => router.push('/jobs')}>Back</button>
+             
                 <button className="btn btn-primary" onClick={() => { setEditing(true); setEditForm({
                   title: job?.title ?? '',
                   description: job?.description ?? '',
@@ -170,6 +240,7 @@ export default function JobDetail() {
                   applicationUrl: job?.applicationUrl ?? '',
                   closingDate: job?.closingDate ? new Date(job.closingDate).toISOString().slice(0,10) : ''
                 }) }}>Edit</button>
+                <button onClick={handleDelete} className="btn btn-sm btn-danger">Delete</button>
               </div>
             </div>
           )}
