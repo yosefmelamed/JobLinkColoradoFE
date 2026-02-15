@@ -1,184 +1,204 @@
-import { useEffect, useState } from 'react'
-import Link from 'next/link'
-import Layout from '../../components/Layout'
+"use client"
+import Link from 'next/link';
 import { api } from '../../utils/api'
-import JobModal from '../../components/JobModal'
+import { useEffect, useState } from "react"
 
 type Job = {
-  id: string
-  title: string
-  description?: string
-  location?: string
-  employmentType?: string
-  remoteType?: string
-  salaryMin?: number
-  salaryMax?: number
-  salaryCurrency?: string
-  responsibilities?: string
-  requirements?: string
-  benefits?: string
-  applicationUrl?: string
-  closingDate?: string
-  company?: { id?: string; name?: string; employerId?: string }
+  id: string;
+  title: string;
+  description?: string;
+  company?: { name?: string };
+  location?: string;
+  employmentType?: string;
+  remoteType?: string;
+  salaryMin?: number;
+  salaryMax?: number;
+  salaryCurrency?: string;
+  responsibilities?: string;
+  requirements?: string;
+  benefits?: string;
+  applicationUrl?: string;
+  closingDate?: string;
+  createdAt?: string;
 }
-type Me = { id: string; email: string; employerProfile?: { id: string } }
 
 export default function JobsPage() {
   const [jobs, setJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState("")
+  const [selectedEmployment, setSelectedEmployment] = useState<string[]>([])
+  const [selectedRemote, setSelectedRemote] = useState<string[]>([])
   const [error, setError] = useState<string | null>(null)
-  const [me, setMe] = useState<Me | null>(null)
-  const [companies, setCompanies] = useState<any[]>([])
-  const [modalOpen, setModalOpen] = useState(false)
 
+  const employmentOptions = ["Full-time", "Part-time", "Contract"]
+  const remoteOptions = ["Remote", "Hybrid", "On-site"]
+
+  /* ============================= */
+  /* LOAD JOBS (INITIAL + SEARCH) */
+  /* ============================= */
   useEffect(() => {
     let mounted = true
-    api.get('/jobs')
-      .then(res => { if (mounted) setJobs(res.data || []) })
-      .catch(err => { if (mounted) setError(err?.response?.data?.message || err.message) })
-      .finally(() => { if (mounted) setLoading(false) })
-    return () => { mounted = false }
-  }, [])
 
-  function refreshJobs() {
-    api.get('/jobs').then(res => setJobs(res.data || [])).catch(() => {})
-  }
+    const loadJobs = async () => {
+      setLoading(true)
+      try {
+        const query = search ? `?search=${encodeURIComponent(search)}` : ""
+        const res = await api.get(`/jobs${query}`, {
+          headers: { 'Cache-Control': 'no-cache' },
+        })
 
-  useEffect(() => {
-    let mounted = true
-    api.get('/profiles/me').then(r => { if (mounted) setMe(r.data) }).catch(() => {}).finally(() => {})
-    return () => { mounted = false }
-  }, [])
+        if (!mounted) return
+        const all: Job[] = res.data || []
 
-  useEffect(() => {
-    let mounted = true
-    api.get('/companies').then(r => { if (mounted) setCompanies(r.data || []) }).catch(() => {})
-    return () => { mounted = false }
-  }, [])
+        // Sort newest first if createdAt exists
+        const sorted = all.slice().sort((a, b) => {
+          if (a.createdAt && b.createdAt) {
+            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          }
+          return 0
+        })
 
-  const myCompany = me?.employerProfile ? companies.find(c => c.employerId === me.employerProfile!.id) : undefined
-  const myJobs = myCompany ? jobs.filter(j => j.company?.id === myCompany.id) : []
+        setJobs(sorted)
+        setError(null)
+      } catch (err: any) {
+        if (!mounted) return
+        setJobs([])
+        setError(err?.response?.data?.message || err.message || "Error loading jobs")
+      } finally {
+        if (mounted) setLoading(false)
+      }
+    }
 
+    loadJobs()
+
+    return () => {
+      mounted = false
+    }
+  }, [search])
+
+  /* ============================= */
+  /* CLIENT-SIDE FILTERING */
+  /* ============================= */
+  const filteredJobs = jobs.filter(job => {
+    const matchesEmployment =
+      selectedEmployment.length === 0 ||
+      (job.employmentType && selectedEmployment.includes(job.employmentType))
+
+    const matchesRemote =
+      selectedRemote.length === 0 ||
+      (job.remoteType && selectedRemote.includes(job.remoteType))
+
+    return matchesEmployment && matchesRemote
+  })
+
+  /* ============================= */
+  /* UI */
+  /* ============================= */
   return (
-    <Layout>
-      <h2 className="text-2xl font-semibold mb-4">Jobs</h2>
-      {loading && <div>Loading...</div>}
-      {error && <div className="text-red-600">{error}</div>}
+    <div className="max-w-6xl mx-auto px-4 py-10">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2">Find Your Next Opportunity</h1>
+        <p className="text-gray-600">Browse available jobs and filter by your preferences.</p>
+      </div>
 
-      {/* If user has no employer profile, prompt to create one */}
-      {me && !me.employerProfile && !loading && (
-        <div className="mb-6 p-4 border rounded bg-yellow-50 max-w-lg">
-          <div className="font-medium">You need an employer profile before posting jobs.</div>
-          <div className="mt-2 text-sm">Create an employer profile to manage companies and post jobs.</div>
-          <div className="mt-4">
-            <Link href="/profiles/create-employer" className="btn btn-primary">Create employer profile</Link>
+      {/* Search + Filters */}
+      <div className="mb-8 bg-white p-6 rounded-2xl shadow-sm border">
+        {/* Search */}
+        <input
+          type="text"
+          placeholder="Search jobs..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="w-full border rounded-xl px-4 py-3 mb-6 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* Employment Type */}
+          <div>
+            <div className="text-sm font-semibold mb-3">Employment Type</div>
+            <div className="flex flex-wrap gap-4">
+              {employmentOptions.map(type => (
+                <label key={type} className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={selectedEmployment.includes(type)}
+                    onChange={e => {
+                      if (e.target.checked) setSelectedEmployment([...selectedEmployment, type])
+                      else setSelectedEmployment(selectedEmployment.filter(t => t !== type))
+                    }}
+                    className="accent-blue-600"
+                  />
+                  {type}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Work Type */}
+          <div>
+            <div className="text-sm font-semibold mb-3">Work Type</div>
+            <div className="flex flex-wrap gap-4">
+              {remoteOptions.map(type => (
+                <label key={type} className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={selectedRemote.includes(type)}
+                    onChange={e => {
+                      if (e.target.checked) setSelectedRemote([...selectedRemote, type])
+                      else setSelectedRemote(selectedRemote.filter(t => t !== type))
+                    }}
+                    className="accent-blue-600"
+                  />
+                  {type}
+                </label>
+              ))}
+            </div>
           </div>
         </div>
+      </div>
+
+      {/* Loading / Error */}
+      {loading && <div className="text-gray-500">Loading jobs...</div>}
+      {error && <div className="text-red-600 mb-4">{error}</div>}
+
+      {/* Jobs Grid */}
+      {!loading && filteredJobs.length === 0 && (
+        <div className="text-gray-500">No jobs match your filters.</div>
       )}
 
-      {/* If user has an employerProfile but no company, prompt to create a company */}
-      {me?.employerProfile && !loading && !myCompany && (
-        <div className="mb-6 p-4 border rounded bg-yellow-50 max-w-lg">
-          <div className="font-medium">You don't have a company yet.</div>
-          <div className="mt-2">Create a company to start posting jobs.</div>
-          <div className="mt-4">
-            <Link href="/companies/create" className="btn btn-primary">Create your company</Link>
-          </div>
-        </div>
-      )}
+      {!loading && filteredJobs.length > 0 && (
+        <div className="grid md:grid-cols-2 gap-6">
+          {filteredJobs.map(job => (
+             <Link href={`/jobs/${job?.id}`} className="">
+            <div key={job.id} className="border rounded-2xl p-6 shadow-sm hover:shadow-md transition">
+             
+             <div className="mb-2 text-sm text-gray-500">{job.company?.name}</div>
 
-      {/* If user has a company but hasn't posted any jobs, prompt to create a job */}
-      {me?.employerProfile && myCompany && !loading && myJobs.length === 0 && (
-        <div className="mb-6 p-4 border rounded bg-yellow-50 max-w-lg">
-          <div className="font-medium">No jobs posted yet.</div>
-          <div className="mt-2">Create your first job posting.</div>
-          <div className="mt-4">
-            <button onClick={()=>setModalOpen(true)} className="btn btn-primary">Create your first job</button>
-          </div>
-        </div>
-      )}
+              <h3 className="text-lg font-semibold mb-2">{job.title}</h3>
 
-      <div className="job_container">
-        {/* Show user's company jobs first */}
-        {myJobs.length > 0 && myJobs.map(job => (
-          <div key={job.id} className="job_item">
-            <div>
-              <h3 className="text-lg font-medium">{job.title} <span className="text-sm text-gray-500">(Your company)</span></h3>
-              <div className="text-sm text-gray-600">{job.company?.name}</div>
-              {job.location && <div className="text-sm text-gray-600">Location: {job.location}</div>}
-              <div className="mt-2 text-sm">{job.description ? job.description.substring(0, 400) : 'No description'}</div>
-              <div className="mt-2 text-sm text-gray-700">
-                {job.employmentType && <span className="mr-3">Type: {job.employmentType}</span>}
-                {job.remoteType && <span className="mr-3">Work: {job.remoteType}</span>}
-                {(job.salaryMin || job.salaryMax) && (
-                  <span className="mr-3">Salary: {job.salaryCurrency ?? ''} {job.salaryMin ?? ''}{job.salaryMin && job.salaryMax ? ' - ' + job.salaryMax : ''}</span>
+              {job.description && (
+                <p className="text-sm text-gray-600 mb-4 line-clamp-3">{job.description}</p>
+              )}
+
+              <div className="flex flex-wrap gap-2 text-xs">
+                {job.employmentType && (
+                  <span className="bg-gray-100 px-2 py-1 rounded-lg">{job.employmentType}</span>
+                )}
+                {job.remoteType && (
+                  <span className="bg-gray-100 px-2 py-1 rounded-lg">{job.remoteType}</span>
+                )}
+                {job.location && (
+                  <span className="bg-gray-100 px-2 py-1 rounded-lg">{job.location}</span>
                 )}
               </div>
-              {job.responsibilities && <div className="mt-2"><strong>Responsibilities:</strong> <div className="text-sm">{job.responsibilities}</div></div>}
-              {job.requirements && <div className="mt-2"><strong>Requirements:</strong> <div className="text-sm">{job.requirements}</div></div>}
-              {job.benefits && <div className="mt-2"><strong>Benefits:</strong> <div className="text-sm">{job.benefits}</div></div>}
-              {job.applicationUrl && (
-                <div className="mt-2"><a href={job.applicationUrl} className="text-blue-600">Apply: {job.applicationUrl}</a></div>
-              )}
-              {job.closingDate && (
-                <div className="mt-2 text-sm text-gray-600">Closes: {new Date(job.closingDate).toLocaleDateString()}</div>
-              )}
-
-              <div className="job_item-cta mt-4">
-                <Link href={`/jobs/${job.id}?edit=true`} className="btn">Edit</Link>
-                <Link href={`/jobs/${job.id}`} className="btn">View</Link>
-                {job.applicationUrl ? (
-                  <a href={job.applicationUrl} className="btn btn-primary">Apply</a>
-                ) : (
-                  <button onClick={() => setModalOpen(true)} className="btn btn-primary">Create / Apply</button>
-                )}
               </div>
-            </div>
-          </div>
-        ))}
-        {/* Show user's company jobs first */}
-        {myJobs.length > 0 &&  (
-          <div className="mt-4">
-             <button onClick={()=>setModalOpen(true)} className="btn btn-primary">Create another job</button>
-             </div>
-        )}
-
-
-        {/* Other jobs */}
-        {jobs.filter(j => !(myCompany && j.company?.id === myCompany.id)).map(job => (
-          <div key={job.id} className="job_item">
-            <h3 className="text-lg font-medium">{job.title}</h3>
-            <div className="text-sm text-gray-600">{job.company?.name}</div>
-            {job.location && <div className="text-sm text-gray-600">Location: {job.location}</div>}
-            <p className="mt-2 text-sm">{job.description ? job.description.substring(0, 400) : 'No description'}</p>
-            <div className="mt-2 text-sm text-gray-700">
-              {job.employmentType && <span className="mr-3">Type: {job.employmentType}</span>}
-              {job.remoteType && <span className="mr-3">Work: {job.remoteType}</span>}
-              {(job.salaryMin || job.salaryMax) && (
-                <span className="mr-3">Salary: {job.salaryCurrency ?? ''} {job.salaryMin ?? ''}{job.salaryMin && job.salaryMax ? ' - ' + job.salaryMax : ''}</span>
-              )}
-            </div>
-            {job.responsibilities && <div className="mt-2"><strong>Responsibilities:</strong> <div className="text-sm">{job.responsibilities}</div></div>}
-            {job.requirements && <div className="mt-2"><strong>Requirements:</strong> <div className="text-sm">{job.requirements}</div></div>}
-            {job.benefits && <div className="mt-2"><strong>Benefits:</strong> <div className="text-sm">{job.benefits}</div></div>}
-            {job.applicationUrl && (
-              <div className="mt-2"><a href={job.applicationUrl} className="text-blue-600">Apply: {job.applicationUrl}</a></div>
-            )}
-            {job.closingDate && (
-              <div className="mt-2 text-sm text-gray-600">Closes: {new Date(job.closingDate).toLocaleDateString()}</div>
-            )}
-
-            <div className="job_item-cta mt-4">
-              <Link href={`/jobs/${job.id}`} className="btn">View</Link>
-              {job.applicationUrl && (
-                <a href={job.applicationUrl} className="btn btn-primary">Apply</a>
-              )}
-            </div>
-          </div>
-        ))}
-
-             </div>
-      <JobModal isOpen={modalOpen} onClose={()=>setModalOpen(false)} companies={companies} onCreated={refreshJobs} />
-    </Layout>
+             </Link>
+            
+            
+          ))}
+        </div>
+      )}
+    </div>
   )
 }
