@@ -48,10 +48,10 @@ export const Layout: React.FC<{children: React.ReactNode; showHeader?: boolean}>
     <div className="min-h-screen flex flex-col">
       {showHeader && (
         <header className="site-header shadow">
-          <div className="container px-4 py-4 flex justify-between items-center">
+          <div className="container px-4 py-4 flex justify-between items-center text-light">
             <h1 className="text-lg font-semibold">Job Link</h1>
             <nav ref={navRef} className="space-x-4 relative flex items-center">
-              <Link href="/jobs" className="text-gray-700">Jobs</Link>
+              <Link href="/jobs" className="">Jobs</Link>
               {isAuthenticated && isEmployer && <Link href="/jobs/create" className="text-green-600">Create Job</Link>}
               <Link href="/companies" className="text-gray-700">Companies</Link>
               <div className="ml-4">
@@ -62,13 +62,13 @@ export const Layout: React.FC<{children: React.ReactNode; showHeader?: boolean}>
                 </button>
 
                 {menuOpen && (
-                  <div className="absolute right-0 mt-12 w-48 bg-white border rounded shadow p-2 z-50">
+                  <div className="account-buttons absolute right-0 mt-10 w-48 border rounded shadow p-2 z-50">
                     {!isAuthenticated ? (
-                      <Link href="/auth/login" className="block px-3 py-2 hover:bg-gray-50">Sign In</Link>
+                      <Link href="/auth/login" className="block px-3 py-2">Sign In</Link>
                     ) : (
                       <>
-                        <Link href="/profiles" className="block px-3 py-2 hover:bg-gray-50">Profile</Link>
-                        <button onClick={logout} className="w-full text-left px-3 py-2 hover:bg-gray-50">Logout</button>
+                        <Link href="/profiles" className="block px-3 py-2 ">Profile</Link>
+                        <button onClick={logout} className="w-full text-left px-3 py-2">Logout</button>
                       </>
                     )}
                   </div>

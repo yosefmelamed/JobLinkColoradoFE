@@ -95,7 +95,7 @@ export default function JobsPage() {
   /* UI */
   /* ============================= */
   return (
-    <div className="max-w-6xl mx-auto px-4 py-10">
+    <div className=" max-w-6xl mx-auto px-4 py-10">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Find Your Next Opportunity</h1>
@@ -103,7 +103,7 @@ export default function JobsPage() {
       </div>
 
       {/* Search + Filters */}
-      <div className="mb-8 bg-white p-6 rounded-2xl shadow-sm border">
+      <div className="search mb-8 p-6 rounded-2xl shadow-sm border">
         {/* Search */}
         <input
           type="text"
