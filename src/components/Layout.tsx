@@ -49,7 +49,9 @@ export const Layout: React.FC<{children: React.ReactNode; showHeader?: boolean}>
       {showHeader && (
         <header className="site-header shadow">
           <div className="container px-4 py-4 flex justify-between items-center text-light">
+           <Link href="/" className="">
             <h1 className="text-lg font-semibold">Job Link</h1>
+            </Link>
             <nav ref={navRef} className="space-x-4 relative flex items-center">
               <Link href="/jobs" className="">Jobs</Link>
               {isAuthenticated && isEmployer && <Link href="/jobs/create" className="text-green-600">Create Job</Link>}

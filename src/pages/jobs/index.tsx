@@ -97,13 +97,8 @@ export default function JobsPage() {
   return (
     <div className=" max-w-6xl mx-auto px-4 py-10">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Find Your Next Opportunity</h1>
-        <p className="text-gray-600">Browse available jobs and filter by your preferences.</p>
-      </div>
-
-      {/* Search + Filters */}
-      <div className="search mb-8 p-6 rounded-2xl shadow-sm border">
+            {/* Search + Filters */}
+      <div className="search mb-8 p-6 rounded-2xl shadow-sm border bg-slate-50">
         {/* Search */}
         <input
           type="text"
@@ -171,7 +166,7 @@ export default function JobsPage() {
         <div className="grid md:grid-cols-2 gap-6">
           {filteredJobs.map(job => (
              <Link href={`/jobs/${job?.id}`} className="">
-            <div key={job.id} className="border rounded-2xl p-6 shadow-sm hover:shadow-md transition">
+            <div key={job.id} className="border rounded-2xl p-6 shadow-sm hover:shadow-md transition bg-slate-50">
              
              <div className="mb-2 text-sm text-gray-500">{job.company?.name}</div>
 
@@ -181,15 +176,15 @@ export default function JobsPage() {
                 <p className="text-sm text-gray-600 mb-4 line-clamp-3">{job.description}</p>
               )}
 
-              <div className="flex flex-wrap gap-2 text-xs">
+              <div className="flex flex-wrap gap-2 text-xs ">
                 {job.employmentType && (
-                  <span className="bg-gray-100 px-2 py-1 rounded-lg">{job.employmentType}</span>
+                  <span className="bg-gray-100 px-2 py-1 rounded-lg bg-red-300">{job.employmentType}</span>
                 )}
                 {job.remoteType && (
-                  <span className="bg-gray-100 px-2 py-1 rounded-lg">{job.remoteType}</span>
+                  <span className="bg-gray-100 px-2 py-1 rounded-lg bg-neutral-300">{job.remoteType}</span>
                 )}
                 {job.location && (
-                  <span className="bg-gray-100 px-2 py-1 rounded-lg">{job.location}</span>
+                  <span className="bg-gray-100 px-2 py-1 rounded-lg bg-slate-300">{job.location}</span>
                 )}
               </div>
               </div>
